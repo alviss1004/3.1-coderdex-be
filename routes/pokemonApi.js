@@ -45,6 +45,8 @@ router.get("/", (req, res, next) => {
     if (index !== -1) {
       filterKeys[index] = "name";
     }
+    filterQuery["name"] = filterQuery["search"];
+    delete filterQuery["search"];
 
     let offset = limit * (page - 1);
 
@@ -52,7 +54,6 @@ router.get("/", (req, res, next) => {
     db = JSON.parse(db);
     let { data } = db;
     totalPokemons = data.length;
-    data = data.slice(offset, offset + limit);
 
     let result = [];
 
@@ -60,14 +61,18 @@ router.get("/", (req, res, next) => {
       filterKeys.forEach((condition) => {
         result = result.length
           ? {
-              data: result.filter(
-                (pokemon) => pokemon[condition] === filterQuery[condition]
+              data: result.filter((pokemon) =>
+                pokemon[condition]
+                  .toLowerCase()
+                  .includes(filterQuery[condition].toLowerCase())
               ),
               totalPokemons: data.length,
             }
           : {
-              data: data.filter(
-                (pokemon) => pokemon[condition] === filterQuery[condition]
+              data: data.filter((pokemon) =>
+                pokemon[condition]
+                  .toLowerCase()
+                  .includes(filterQuery[condition].toLowerCase())
               ),
               totalPokemons: data.length,
             };
@@ -78,6 +83,12 @@ router.get("/", (req, res, next) => {
         totalPokemons: data.length,
       };
     }
+
+    data = result.data.slice(offset, offset + limit);
+    result = {
+      data: data,
+      totalPokemons: data.length,
+    };
 
     res.status(200).send(result);
   } catch (error) {
