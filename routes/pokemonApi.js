@@ -93,7 +93,7 @@ router.get("/", (req, res, next) => {
 
 router.get("/:id", (req, res, next) => {
   let { params } = req;
-  const pokemonId = params.id;
+  let pokemonId = parseInt(params.id);
 
   try {
     let db = fs.readFileSync("pokemons.json", "utf-8");
@@ -101,23 +101,25 @@ router.get("/:id", (req, res, next) => {
     const { data } = db;
 
     let result = [];
-    const pokemonIds = data.map((pokemon) => pokemon.id);
+    let index = data.indexOf(
+      data.find((pokemon) => pokemon.id === parseInt(pokemonId))
+    );
 
-    res.status(200).send(pokemonIds.indexOf(5));
+    result =
+      pokemonId == 1
+        ? [data[data.length - 1], data[0], data[1]]
+        : pokemonId == data[data.length - 1].id
+        ? [data[data.length - 2], data[data.length - 1], data[0]]
+        : [data[index - 1], data[index], data[index + 1]];
+    const currentPokemons = {
+      data: {
+        previousPokemon: result[0],
+        pokemon: result[1],
+        nextPokemon: result[2],
+      },
+    };
 
-    // result =
-    //   pokemonId == 1
-    //     ? [data[data.length - 1], data[0], data[1]]
-    //     : pokemonId == data[data.length - 1].id
-    //     ? [data[data.length - 2], data[data.length - 1], data[0]]
-    //     : [data[pokemonId - 2], data[pokemonId - 1], data[pokemonId]];
-    // const currentPokemons = {
-    //   data: {
-    //     previousPokemon: result[0],
-    //     pokemon: result[1],
-    //     nextPokemon: result[2],
-    //   },
-    // };
+    res.status(200).send(currentPokemons);
   } catch (error) {
     next(error);
   }
