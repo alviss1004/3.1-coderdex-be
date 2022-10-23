@@ -25,7 +25,7 @@ app.use((req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  res.status(err.statusCode).send(err.message);
+  res.status(err.statusCode || 400).send(err.message);
 });
 
 module.exports = app;

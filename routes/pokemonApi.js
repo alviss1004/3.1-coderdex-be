@@ -40,13 +40,20 @@ router.get("/", (req, res, next) => {
       }
       if (!filterQuery[key]) delete filterQuery[key];
     });
-    var index = filterKeys.indexOf("search");
 
+    var index = filterKeys.indexOf("search");
     if (index !== -1) {
       filterKeys[index] = "name";
     }
     filterQuery["name"] = filterQuery["search"];
     delete filterQuery["search"];
+
+    var index = filterKeys.indexOf("type");
+    if (index !== -1) {
+      filterKeys[index] = "types";
+    }
+    filterQuery["types"] = filterQuery["type"];
+    delete filterQuery["type"];
 
     let offset = limit * (page - 1);
 
@@ -59,23 +66,12 @@ router.get("/", (req, res, next) => {
 
     if (filterKeys.length) {
       filterKeys.forEach((condition) => {
-        result = result.length
-          ? {
-              data: result.filter((pokemon) =>
-                pokemon[condition]
-                  .toLowerCase()
-                  .includes(filterQuery[condition].toLowerCase())
-              ),
-              totalPokemons: data.length,
-            }
-          : {
-              data: data.filter((pokemon) =>
-                pokemon[condition]
-                  .toLowerCase()
-                  .includes(filterQuery[condition].toLowerCase())
-              ),
-              totalPokemons: data.length,
-            };
+        result = {
+          data: data.filter((pokemon) =>
+            pokemon[condition].includes(filterQuery[condition])
+          ),
+          totalPokemons: data.length,
+        };
       });
     } else {
       result = {
@@ -89,7 +85,6 @@ router.get("/", (req, res, next) => {
       data: data,
       totalPokemons: data.length,
     };
-
     res.status(200).send(result);
   } catch (error) {
     next(error);
@@ -106,21 +101,23 @@ router.get("/:id", (req, res, next) => {
     const { data } = db;
 
     let result = [];
-    result =
-      pokemonId == 1
-        ? [data[data.length - 1], data[0], data[1]]
-        : pokemonId == 721
-        ? [data[719], data[720], data[0]]
-        : data.slice(pokemonId - 2, pokemonId + 1);
-    const currentPokemons = {
-      data: {
-        previousPokemon: result[0],
-        pokemon: result[1],
-        nextPokemon: result[2],
-      },
-    };
+    const pokemonIds = data.map((pokemon) => pokemon.id);
 
-    res.status(200).send(currentPokemons);
+    res.status(200).send(pokemonIds.indexOf(5));
+
+    // result =
+    //   pokemonId == 1
+    //     ? [data[data.length - 1], data[0], data[1]]
+    //     : pokemonId == data[data.length - 1].id
+    //     ? [data[data.length - 2], data[data.length - 1], data[0]]
+    //     : [data[pokemonId - 2], data[pokemonId - 1], data[pokemonId]];
+    // const currentPokemons = {
+    //   data: {
+    //     previousPokemon: result[0],
+    //     pokemon: result[1],
+    //     nextPokemon: result[2],
+    //   },
+    // };
   } catch (error) {
     next(error);
   }
@@ -169,6 +166,7 @@ router.post("/", (req, res, next) => {
     data.push(newPokemon);
     db.data = data;
     db = JSON.stringify(db);
+    fs.writeFileSync("pokemons.json", db);
 
     res.status(200).send(newPokemon);
   } catch (error) {
