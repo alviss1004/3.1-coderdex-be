@@ -105,7 +105,7 @@ router.get("/:id", (req, res, next) => {
       data.find((pokemon) => pokemon.id === parseInt(pokemonId))
     );
     console.log(index);
-    if (index !== -1) {
+    if (index >= 0) {
       result =
         pokemonId == 1
           ? [data[data.length - 1], data[0], data[1]]
@@ -165,7 +165,7 @@ router.post("/", (req, res, next) => {
 
     const newPokemon = {
       name,
-      id,
+      id: parseInt(id),
       types,
       url,
     };

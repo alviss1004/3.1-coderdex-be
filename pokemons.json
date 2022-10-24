@@ -4327,7 +4327,8 @@
       "url": "http://localhost:5000/images/721.png"
     },
     { "name": "haha", "id": 800, "types": ["fire"], "url": "testurl" },
-    { "name": "uwu", "id": 865, "types": ["poison"], "url": "testurl" }
+    { "name": "uwu", "id": 865, "types": ["poison"], "url": "testurl" },
+    { "name": "abc", "id": 911, "types": ["fire", null], "url": "test" }
   ],
   "totalPokemons": 721
 }
