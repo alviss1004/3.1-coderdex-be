@@ -166,7 +166,7 @@ router.post("/", (req, res, next) => {
     const newPokemon = {
       name,
       id: parseInt(id),
-      types,
+      types: types.filter((type) => type !== null),
       url,
     };
 
